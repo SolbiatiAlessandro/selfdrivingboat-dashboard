@@ -9,10 +9,12 @@ STATE = 0
 def homepage():
     return """
     <div style="padding:30px;border:1px;">CURRENT STATE: {}</div>
-    <a style="background-color:blue;color:white;" href="/set_state/FORWARD">FORWARD</a>
-    <a style="background-color:green" href="/set_state/LEFT">LEFT</a>
-    <a style="background-color:yellow" href="/set_state/RIGHT">RIGHT</a>
-    <a style="background-color:red" href="/set_state/STOP">STOP</a>
+    <div style="display:flex">
+    <div style="width:80%;padding:10%;background-color:orange;color:white;"><a href="/set_state/FORWARD">FORWARD</a></div>
+    <div style="width:80%;padding:10%;background-color:green"><a href="/set_state/LEFT">LEFT</a></div>
+    <div style="width:80%;padding:10%;background-color:yellow"><a href="/set_state/RIGHT">RIGHT</a></div>
+    <div style="width:80%;padding:10%;background-color:red"><a href="/set_state/STOP">STOP</a></div>
+    </div>
     """.format(states[STATE])
 
 @app.route('/set_state/<state>')
