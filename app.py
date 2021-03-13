@@ -1,9 +1,18 @@
-from flask import Flask, url_for,redirect
+from flask import Flask, url_for,redirect,request
 from datetime import datetime
+import logging
 app = Flask(__name__)
 
 states = ["DEFAULT", "FORWARD", "LEFT", "RIGHT", "STOP"]
 STATE = 0
+
+@app.route('/ping', methods=['POST'])
+def ping_from_boat():
+    data = request.form
+    if data.get('source') is not None and data['source'] == "1kgboat":
+        print("GOT A PING FROM THE BOAT!")
+        logging.warning("GOT A PING FROM THE BOAT")
+    return "received"
 
 @app.route('/')
 def homepage():
