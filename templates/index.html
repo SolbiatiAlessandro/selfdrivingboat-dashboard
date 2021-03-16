@@ -1,0 +1,86 @@
+<style type="text/css">
+.boatbox{
+  border: 3px solid;
+  margin:1%;
+  width:15%;
+  background:white;
+  height:500px;
+  text-align:center;
+}
+.boatstatus{
+  border: 2px solid;
+  margin: 5px;
+}
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+<div style="width:98%;height:80px;" class="boatbox"><h1>THESELFDRIVINGBOAT.COM</h1></div>
+<div style="display:flex">
+  <div class="boatbox">
+	<h1>STATUS</h1>
+	<p>last queried at <span id="last_ts"></span></p>
+	<div id="last_boat_ping_time_div" class="boatstatus">BOAT LAST PING <span id="last_boat_ping_time"></span></div>
+	<div class="boatstatus">RPI {{PiJuice_BP7X_3_7VDC_1820mAhvalue}}</div>
+	<div class="boatstatus">RPI Input5vIo {{PiJuice_BP7X_3_7VDC_1820mAhpowerInput5vIo}}</div>
+	<div class="boatstatus">RPI Input {{PiJuice_BP7X_3_7VDC_1820mAhpowerInput}}</div>
+	<div class="boatstatus">MOTOR {{YF18650value}}</div>
+	<div class="boatstatus">SOLAR1 {{SolarPanel1value}}</div>
+	<div class="boatstatus">SOLAR2 {{SolarPanel2value}}</div>
+  </div>
+  <div style="width:70%" class="boatbox">
+	<h1>CAMERA FEED</h1>
+	<div class="boatstatus">REQUEST IMAGE</div>
+  </div>
+  <div class="boatbox">
+	<h1>CONTROL</h1>
+	<div class="boatstatus">FORWARD</div>
+	<div class="boatstatus">LEFT</div>
+	<div class="boatstatus">RIGHT</div>
+	<div class="boatstatus">BACK</div>
+  </div>
+</div>
+<script type="text/javascript">
+  var last_ts = {{unix_ts}};
+  var last_boat_ping_time = {{time}};
+  var time_from_last_data = last_ts - last_boat_ping_time;
+
+  var unix_to_ds = function(unix){
+	var date = new Date(unix * 1000);
+	var hours = date.getHours();
+	var minutes = "0" + date.getMinutes();
+	var seconds = "0" + date.getSeconds();
+
+	var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+	return formattedTime;
+  };
+
+
+  $("#last_ts").text(unix_to_ds(last_ts));
+  $("#last_boat_ping_time").text(unix_to_ds(last_boat_ping_time));
+
+  var BOAT_INACTIVE_CLOCK = 31*60;
+  var BOAT_ACTIVE_CLOCK = 10;
+  if(time_from_last_data >= BOAT_INACTIVE_CLOCK){
+	$("#last_boat_ping_time_div").css({"backgroundColor": "red"});
+  }
+  if(BOAT_ACTIVE_CLOCK < time_from_last_data && time_from_last_data < BOAT_INACTIVE_CLOCK){
+	$("#last_boat_ping_time_div").css({"backgroundColor": "yellow"});
+  }
+  if(time_from_last_data < BOAT_ACTIVE_CLOCK ){
+	$("#last_boat_ping_time_div").css({"backgroundColor": "green"});
+  }
+
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+  const interval = setInterval(function() {
+	console.log(last_ts);
+	$.getJSON($SCRIPT_ROOT + '/influx_db_updated', {'last_ts': last_ts}, function(data){
+		if(data['updated'] === true){
+		  window.location.href = '/?last_ts='+last_ts
+		} else {
+		  console.log("no new data in the last "+((Date.now() / 1000) - last_boat_ping_time) +" seconds.");
+		}
+	});
+   }, 5000);
+</script>
