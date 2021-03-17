@@ -6,8 +6,8 @@ import logging
 import influxdb_query
 app = Flask(__name__)
 
-states = ["DEFAULT", "FORWARD", "LEFT", "RIGHT", "STOP"]
-STATE = 1
+states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]
+STATE = 0
 
 @app.route('/ping', methods=['POST'])
 def ping_from_boat():
