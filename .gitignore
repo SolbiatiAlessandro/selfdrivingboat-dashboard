@@ -3,6 +3,8 @@ readme_assets
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+.mypy_cache/
+*mypy_cache
 *.py[cod]
 *$py.class
 
