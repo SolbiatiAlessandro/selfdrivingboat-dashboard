@@ -5,21 +5,15 @@ import datetime
 import logging
 import boto3
 import os
+import json
 app = Flask(__name__)
 
 import influxdb_query
 import db
+import aws
 
 states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]
 STATE = 0
-
-@app.route('/ping', methods=['POST'])
-def ping_from_boat():
-    data = request.form
-    if data.get('source') is not None and data['source'] == "1kgboat":
-        print("GOT A PING FROM THE BOAT!")
-        logging.warning("GOT A PING FROM THE BOAT")
-    return "received"
 
 @app.route('/influx_db_updated')
 def influxdb_updated():
@@ -56,8 +50,12 @@ def homepage():
     query_res = influxdb_query.query_from_last_ts(last_ts)
     influxdb_data = influxdb_query.parse_tables_last_values(query_res)
     print(influxdb_data, flush=True)
+
     current_unixtime = time.time()
-    additional_data = {'unix_ts':current_unixtime}
+    last_pic_path = 'static/'+str(current_unixtime)
+    aws.get_last_image(last_pic_path)
+
+    additional_data = {'unix_ts':current_unixtime, 'last_pic_path':str(current_unixtime)}
 
     return render_template("index.html", **{**influxdb_data, **additional_data})
 
@@ -76,7 +74,7 @@ def set_command():
 def sign_s3():
   S3_BUCKET = os.environ.get('S3_BUCKET')
   if not S3_BUCKET:
-      S3_BUCKET = 'theselfdrivingboatpic'
+      S3_BUCKET = 'selfdrivingboatpics'
 
   file_name = request.args.get('file_name')
   file_type = request.args.get('file_type')
