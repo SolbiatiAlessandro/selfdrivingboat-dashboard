@@ -3,10 +3,12 @@ import time
 import sys
 import datetime
 import logging
-import influxdb_query
 import boto3
 import os
 app = Flask(__name__)
+
+import influxdb_query
+import db
 
 states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]
 STATE = 0
@@ -28,6 +30,21 @@ def influxdb_updated():
         return {'updated': True}
     return {'updated': False}
 
+@app.route('/read_last_command')
+def read_last_command():
+    boat_name = request.args.get('boat_name', '', str)
+
+    try:
+        boat_accepted_name = os.environ['BOAT_NAME']
+    except KeyError:
+        with open('boat.secret', 'r') as f:
+            boat_accepted_name = f.read()
+
+    if boat_name != boat_accepted_name:
+        return {'command': 'NOT AUTHENTICATED, ?boat_name=XXX'}
+    command = db.read_last_command(boat_name)
+    return {'command': command}
+
 @app.route('/')
 def homepage():
     last_ts = request.args.get('last_ts', '', str)
@@ -44,22 +61,16 @@ def homepage():
 
     return render_template("index.html", **{**influxdb_data, **additional_data})
 
-@app.route('/set_state/<state>')
-def set_state(state):
-    global STATE
-    STATE = states.index(state)
-    return redirect('/')
-
-@app.route('/state')
-def get_state():
-    return states[STATE]
-
 @app.route('/set_command')
 def set_command():
   command = request.args.get('command')
-  print(command)
-  _time = time.ctime()
-  return {'result': 'OK', 'time':_time}
+  try:
+      db.add_new_command(command)
+      _time = time.ctime()
+      return {'result': 'OK', 'time':_time}
+  except Exception as e:
+      _time = time.ctime()
+      return {'result': e.__str__(), 'time':_time}
 
 @app.route('/sign_s3/')
 def sign_s3():
@@ -90,4 +101,3 @@ def sign_s3():
 
 if __name__ == '__main__':
     app.run(debug=True, use_reloader=True)
-
