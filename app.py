@@ -54,9 +54,18 @@ def set_state(state):
 def get_state():
     return states[STATE]
 
+@app.route('/set_command')
+def set_command():
+  command = request.args.get('command')
+  print(command)
+  _time = time.ctime()
+  return {'result': 'OK', 'time':_time}
+
 @app.route('/sign_s3/')
 def sign_s3():
   S3_BUCKET = os.environ.get('S3_BUCKET')
+  if not S3_BUCKET:
+      S3_BUCKET = 'theselfdrivingboatpic'
 
   file_name = request.args.get('file_name')
   file_type = request.args.get('file_type')

@@ -11,6 +11,9 @@
   border: 2px solid;
   margin: 5px;
 }
+.boatcommand{
+  width:100%;
+}
 </style>
 <script
   src="https://code.jquery.com/jquery-3.6.0.min.js"
@@ -31,17 +34,37 @@
   </div>
   <div style="width:70%" class="boatbox">
 	<h1>CAMERA FEED</h1>
-	<div class="boatstatus">REQUEST IMAGE</div>
+	<div class="boatstatus"><button class=" boatcommand">REQUEST IMAGE</button></div>
   </div>
   <div class="boatbox">
 	<h1>CONTROL</h1>
-	<div class="boatstatus">FORWARD</div>
-	<div class="boatstatus">LEFT</div>
-	<div class="boatstatus">RIGHT</div>
-	<div class="boatstatus">BACK</div>
+	<p>last command event at <span id="command_ts"></span></p>
+	<div class="boatstatus" id="command_display"></div>
+	<div class="boatstatus"><button class="boatcommand">FORWARD</button></div>
+	<div class="boatstatus"><button class="boatcommand">LEFT</button></div>
+	<div class="boatstatus"><button class="boatcommand">RIGHT</button></div>
+	<div class="boatstatus"><button class="boatcommand">BACK</button></div>
   </div>
 </div>
 <script type="text/javascript">
+
+  (function(){
+	var commands = document.getElementsByClassName('boatcommand');
+	for (var i=0;i < commands.length; i++){
+	  commands[i].onclick = function(e){
+		var command = e.target.innerHTML;
+		$.ajax({
+		  url: '/set_command', 
+		  data: {'command': command}, 
+		  success: function(data){
+			$("#command_display").text(command);
+			$("#command_display").css({"backgroundColor": "yellow"});
+			$("#command_ts").text(data['time']);
+		  }});
+	  }
+	}
+  })();
+
   var last_ts = {{unix_ts}};
   var last_boat_ping_time = {{time}};
   var time_from_last_data = last_ts - last_boat_ping_time;
