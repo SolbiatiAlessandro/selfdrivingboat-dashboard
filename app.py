@@ -4,6 +4,8 @@ import sys
 import datetime
 import logging
 import influxdb_query
+import boto3
+import os
 app = Flask(__name__)
 
 states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]

@@ -1,4 +1,6 @@
+finish script to upload images https://devcenter.heroku.com/articles/s3-upload-python
 
+----
 
 ### tl;dr 
 
