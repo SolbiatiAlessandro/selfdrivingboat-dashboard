@@ -40,7 +40,7 @@ def read_last_command():
         with open('boat.secret', 'r') as f:
             boat_accepted_name = f.read()
 
-    if boat_name != boat_accepted_name:
+    if boat_accepted_name not in boat_name:
         return {'command': 'NOT AUTHENTICATED, ?boat_name=XXX'}
     command = db.read_last_command(boat_name)
     return {'command': command}
