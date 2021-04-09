@@ -23,7 +23,7 @@ def query_from_last_ts(last_ts):
     return tables
 
 def parse_tables_last_values(tables):
-    res = {}
+    res = {'time': '1095379199'}
     for table in tables:
         r = table.records[-1]
         try:
