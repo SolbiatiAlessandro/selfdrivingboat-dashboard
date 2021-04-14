@@ -33,6 +33,3 @@ def parse_tables_last_values(tables):
         except KeyError as e:
             pass
     return res
-
-
-
