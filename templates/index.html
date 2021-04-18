@@ -4,7 +4,7 @@
   margin:1%;
   width:15%;
   background:white;
-  height:500px;
+  height:1000px;
   text-align:center;
 }
 .boatstatus{
@@ -14,32 +14,47 @@
 .boatcommand{
   width:100%;
 }
+	  /* Set the size of the div element that contains the map */
+#map {
+  height: 400px;
+  /* The height is 400 pixels */
+  width: 100%;
+  /* The width is the width of the web page */
+}
 </style>
 <script
   src="https://code.jquery.com/jquery-3.6.0.min.js"
   integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
   crossorigin="anonymous"></script>
-<div style="width:98%;height:80px;" class="boatbox"><h1>THESELFDRIVINGBOAT.COM</h1></div>
+<div style="width:98%;height:80px;" class="boatbox"><h1>WHEREISTHEBOAT.COM</h1></div>
 <div style="display:flex">
   <div class="boatbox">
 	<h1>STATUS</h1>
 	<p>last queried at <span id="last_ts"></span></p>
 	<div id="last_boat_ping_time_div" class="boatstatus">BOAT LAST PING <span id="last_boat_ping_time"></span></div>
-	<div class="boatstatus">RPI {{PiJuice_BP7X_3_7VDC_1820mAhcharge}}</div>
-	<div class="boatstatus">RPI Input5vIo {{PiJuice_BP7X_3_7VDC_1820mAhpowerInput5vIo}}</div>
-	<div class="boatstatus">RPI Input {{PiJuice_BP7X_3_7VDC_1820mAhpowerInput}}</div>
-	<div class="boatstatus">RPI Current Consumption {{PiJuice_BP7X_3_7VDC_1820mAhcurrent}}mA</div>
-	<div class="boatstatus">RPI Voltage Consumption {{PiJuice_BP7X_3_7VDC_1820mAhvoltage}}mV</div>
-	<div class="boatstatus">RPI Battery {{PiJuice_BP7X_3_7VDC_1820mAhbattery}}</div>
-	<div class="boatstatus">MOTOR {{YF18650value}}</div>
-	<div class="boatstatus">SOLAR1 {{SolarPanel1value}}</div>
-	<div class="boatstatus">SOLAR2 {{SolarPanel2value}}</div>
-	<div class="boatstatus">BLUETOOTH {{BV5500status}}</div>
+	<p>vitals</p>
+	<div class="boatstatus">BATTERY {{batteryV}}</div>
+	<div class="boatstatus">BLUETOOTH {{bluetoothstatus}}</div>
+	<p>external</p>
+	<div class="boatstatus">Temperature {{temperaturex}}</div>
+	<div class="boatstatus">Latitude {{GPSlatitude}}</div>
+	<div class="boatstatus">Latitude {{GPSlongitude}}</div>
+	<p>dynamics</p>
+	<div class="boatstatus">Boat Speed {{GPSspeed}}</div>
+	<div class="boatstatus">Acceleration X {{accelerometerx}}</div>
+	<div class="boatstatus">Acceleration Y {{accelerometery}}</div>
+	<div class="boatstatus">Acceleration Z {{accelerometerz}}</div>
+	<div class="boatstatus">Velocity X {{gyroscopex}}</div>
+	<div class="boatstatus">Velocity Y {{gyroscopey}}</div>
+	<div class="boatstatus">Velocity Z {{gyroscopez}}</div>
+	<div class="boatstatus">Angle X {{anglex}}</div>
+	<div class="boatstatus">Angle Y {{angley}}</div>
   </div>
   <div style="width:70%;height:100%;" class="boatbox">
 	<h1>CAMERA FEED</h1>
 	<div class="boatstatus"><button class=" boatcommand">REQUEST IMAGE</button></div>
 	<img style="width:100%" src="{{url_for('static', filename=last_pic_path)}}"/>
+	<div id="map"></div>
   </div>
   <div class="boatbox">
 	<h1>CONTROL</h1>
@@ -52,6 +67,10 @@
 	<div class="boatstatus"><button class="boatcommand">TEST-MOTORS</button></div>
   </div>
 </div>
+<script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBIwzALxUPNbatRBj3Xi1Uhp0fFzwWNBkE&callback=initMap&libraries=&v=weekly"
+      async
+    ></script>
 <script type="text/javascript">
 
   (function(){
@@ -112,4 +131,21 @@
 		}
 	});
    }, 5000);
+</script>
+<script>
+	// Initialize and add the map
+function initMap() {
+  // The location of Uluru
+	const uluru = { lat: {{GPSlatitude}}, lng: {{GPSlongitude}}};
+  // The map, centered at Uluru
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 4,
+    center: uluru,
+  });
+  // The marker, positioned at Uluru
+  const marker = new google.maps.Marker({
+    position: uluru,
+    map: map,
+  });
+}
 </script>

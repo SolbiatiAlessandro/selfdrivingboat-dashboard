@@ -19,7 +19,7 @@ def query_from_last_ts(last_ts):
         seconds_delta = 1
     print("querying influxdb last {} seconds".format(seconds_delta), flush=True)
     tables = query_api.query('from(bucket:"{}") |> range(start: -{}s)'.format(bucket, seconds_delta))
-    print(tables, flush=True)
+    print(len(tables), flush=True)
     return tables
 
 def parse_tables_last_values(tables):
@@ -27,9 +27,13 @@ def parse_tables_last_values(tables):
     for table in tables:
         r = table.records[-1]
         try:
-            key = r['device']+r['_field'] 
+            key = r['_measurement']
+            key += r['_field']
             res[key.replace('.', '_')] = r['_value']
             res['time'] = r['_time'].strftime("%s")
+            print(key,flush=True)
         except KeyError as e:
+            print("ERROR IN READING INFLUXDB TABLE!", flush=True)
+            print(e, flush=True)
             pass
     return res
