@@ -15,6 +15,20 @@ import aws
 states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]
 STATE = 0
 
+@app.route('/influx_db_latest_data')
+def influxdb_latest_data():
+    print(request.args)
+    last_ts = request.args.get('last_ts', '', str)
+
+    if last_ts == '':
+        yesterday = datetime.date.today() - datetime.timedelta(1)
+        yesterday_unixtime= yesterday.strftime("%s")
+        last_ts = yesterday_unixtime
+    query_res = influxdb_query.query_from_last_ts(last_ts)
+    if not query_res:
+        return {'updated': False}
+    return process_data(query_res)
+
 @app.route('/influx_db_updated')
 def influxdb_updated():
     print(request.args)
@@ -48,6 +62,10 @@ def homepage():
         yesterday_unixtime= yesterday.strftime("%s")
         last_ts = yesterday_unixtime
     query_res = influxdb_query.query_from_last_ts(last_ts)
+
+    return render_template("index.html", **process_data(query_res))
+
+def process_data(query_res):
     influxdb_data = influxdb_query.parse_tables_last_values(query_res)
     print(influxdb_data, flush=True)
 
@@ -55,9 +73,8 @@ def homepage():
     last_pic_path = 'static/'+str(current_unixtime)
     aws.get_last_image(last_pic_path)
 
-    additional_data = {'unix_ts':current_unixtime, 'last_pic_path':str(current_unixtime)}
-
-    return render_template("index.html", **{**influxdb_data, **additional_data})
+    additional_data = {'unix_ts':current_unixtime, 'last_pic_path':str(current_unixtime), 'updated': True}
+    return {**influxdb_data, **additional_data}
 
 @app.route('/set_command')
 def set_command():

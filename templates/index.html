@@ -33,22 +33,22 @@
 	<p>last queried at <span id="last_ts"></span></p>
 	<div id="last_boat_ping_time_div" class="boatstatus">BOAT LAST PING <span id="last_boat_ping_time"></span></div>
 	<p>vitals</p>
-	<div class="boatstatus">BATTERY {{batteryV}}</div>
-	<div class="boatstatus">BLUETOOTH {{bluetoothstatus}}</div>
+	<div class="boatstatus">BATTERY <span id="batteryV">{{batteryV}}</span></div>
+	<div class="boatstatus">BLUETOOTH <span id="bluetoothstatus">{{bluetoothstatus}}</span></div>
 	<p>external</p>
-	<div class="boatstatus">Temperature {{temperaturex}}</div>
-	<div class="boatstatus">Latitude {{GPSlatitude}}</div>
-	<div class="boatstatus">Latitude {{GPSlongitude}}</div>
+	<div class="boatstatus">Temperature <span id="temperaturex">{{temperaturex}}</span></div>
+	<div class="boatstatus">Latitude <span id="GPSlatitude">{{GPSlatitude}}</span></div>
+	<div class="boatstatus">Latitude <span id="GPSlongitude">{{GPSlongitude}}</span></div>
 	<p>dynamics</p>
-	<div class="boatstatus">Boat Speed {{GPSspeed}}</div>
-	<div class="boatstatus">Acceleration X {{accelerometerx}}</div>
-	<div class="boatstatus">Acceleration Y {{accelerometery}}</div>
-	<div class="boatstatus">Acceleration Z {{accelerometerz}}</div>
-	<div class="boatstatus">Velocity X {{gyroscopex}}</div>
-	<div class="boatstatus">Velocity Y {{gyroscopey}}</div>
-	<div class="boatstatus">Velocity Z {{gyroscopez}}</div>
-	<div class="boatstatus">Angle X {{anglex}}</div>
-	<div class="boatstatus">Angle Y {{angley}}</div>
+	<div class="boatstatus">Boat Speed <span id="GPSspeed">{{GPSspeed}}</span></div>
+	<div class="boatstatus">Acceleration X <span id="accelerometerx">{{accelerometerx}}</span></div>
+	<div class="boatstatus">Acceleration Y <span id="accelerometery">{{accelerometery}}</span></div>
+	<div class="boatstatus">Acceleration Z <span id="accelerometerz">{{accelerometerz}}</span></div>
+	<div class="boatstatus">Velocity X <span id="gyroscopex">{{gyroscopex}}</span></div>
+	<div class="boatstatus">Velocity Y <span id="gyroscopey">{{gyroscopey}}</span></div>
+	<div class="boatstatus">Velocity Z <span id="gyroscopez">{{gyroscopez}}</span></div>
+	<div class="boatstatus">Angle X <span id="anglex">{{anglex}}</span></div>
+	<div class="boatstatus">Angle Y <span id="angley">{{angley}}</span></div>
   </div>
   <div style="width:70%;height:100%;" class="boatbox">
 	<h1>CAMERA FEED</h1>
@@ -93,40 +93,58 @@
 
   var last_ts = {{unix_ts}};
   var last_boat_ping_time = {{time}};
-  var time_from_last_data = last_ts - last_boat_ping_time;
 
-  var unix_to_ds = function(unix){
-	var date = new Date(unix * 1000);
-	var hours = date.getHours();
-	var minutes = "0" + date.getMinutes();
-	var seconds = "0" + date.getSeconds();
+	var update_latest_ping = function(last_ts, last_boat_ping_time){
+	  var time_from_last_data = last_ts - last_boat_ping_time;
 
-	var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-	return formattedTime;
-  };
+	  var unix_to_ds = function(unix){
+		var date = new Date(unix * 1000);
+		var hours = date.getHours();
+		var minutes = "0" + date.getMinutes();
+		var seconds = "0" + date.getSeconds();
+
+		var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+		return formattedTime;
+	  };
 
 
-  $("#last_ts").text(unix_to_ds(last_ts));
-  $("#last_boat_ping_time").text(unix_to_ds(last_boat_ping_time));
+	  $("#last_ts").text(unix_to_ds(last_ts));
+	  $("#last_boat_ping_time").text(unix_to_ds(last_boat_ping_time));
 
-  var BOAT_INACTIVE_CLOCK = 31*60;
-  var BOAT_ACTIVE_CLOCK = 10;
-  if(time_from_last_data >= BOAT_INACTIVE_CLOCK){
-	$("#last_boat_ping_time_div").css({"backgroundColor": "red"});
+	  var BOAT_INACTIVE_CLOCK = 31*60;
+	  var BOAT_ACTIVE_CLOCK = 10;
+	  if(time_from_last_data >= BOAT_INACTIVE_CLOCK){
+		$("#last_boat_ping_time_div").css({"backgroundColor": "red"});
+	  }
+	  if(BOAT_ACTIVE_CLOCK < time_from_last_data && time_from_last_data < BOAT_INACTIVE_CLOCK){
+		$("#last_boat_ping_time_div").css({"backgroundColor": "yellow"});
+	  }
+	  if(time_from_last_data < BOAT_ACTIVE_CLOCK ){
+		$("#last_boat_ping_time_div").css({"backgroundColor": "green"});
   }
-  if(BOAT_ACTIVE_CLOCK < time_from_last_data && time_from_last_data < BOAT_INACTIVE_CLOCK){
-	$("#last_boat_ping_time_div").css({"backgroundColor": "yellow"});
-  }
-  if(time_from_last_data < BOAT_ACTIVE_CLOCK ){
-	$("#last_boat_ping_time_div").css({"backgroundColor": "green"});
+
+	};
+
+  update_latest_ping(last_ts, last_boat_ping_time);
+
+  var update_data = function(data){
+
+    Object.keys(data).forEach(function(key) {
+		var value = data[key];
+		if(value != null && value != ""){
+			$("#"+key).text(value);
+		}
+ 	});
+
   }
 
   $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
   const interval = setInterval(function() {
 	console.log(last_ts);
-	$.getJSON($SCRIPT_ROOT + '/influx_db_updated', {'last_ts': last_ts}, function(data){
+	$.getJSON($SCRIPT_ROOT + '/influx_db_latest_data', {'last_ts': last_ts}, function(data){
 		if(data['updated'] === true){
-		  window.location.href = '/?last_ts='+last_ts
+			update_latest_ping(data['unix_ts'], data['time']);
+			update_data(data);
 		} else {
 		  console.log("no new data in the last "+((Date.now() / 1000) - last_boat_ping_time) +" seconds.");
 		}
@@ -136,17 +154,15 @@
 <script>
 	// Initialize and add the map
 function initMap() {
-  // The location of Uluru
-	const uluru = { lat: {{GPSlatitude}}, lng: {{GPSlongitude}}};
-  // The map, centered at Uluru
+	const boat_location = { lat: {{GPSlatitude}}, lng: {{GPSlongitude}}};
   const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 4,
-    center: uluru,
+    zoom: 14,
+    center: boat_location,
   });
-  // The marker, positioned at Uluru
   const marker = new google.maps.Marker({
-    position: uluru,
+    position: boat_location,
     map: map,
+	title: "T"
   });
 }
 </script>
