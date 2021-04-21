@@ -72,7 +72,65 @@
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDN98lLUDA1TmDhXCQuW51WR9z35aK2e8k&callback=initMap&libraries=&v=weekly"
       async
     ></script>
-<script type="text/javascript">
+<script>
+
+window.markers = [];
+
+var addMarker = function(lat, lng, label){
+  var marker = new google.maps.Marker({
+	  position: {lat: lat, lng: lng},
+    map: window.map,
+	icon: "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/60/facebook/158/motor-boat_1f6e5.png",
+	label: label
+  });
+	window.markers.push(marker);
+};
+
+var removeMarkers = function(){
+	window.markers.forEach(m => m.setMap(null));
+};
+
+var setMarkers = function(data){
+	class MarkerSet extends Set{
+	  add(elem){
+		return super.add(typeof elem === 'object' ? JSON.stringify(elem) : elem);
+	  }
+	  has(elem){
+		return super.has(typeof elem === 'object' ? JSON.stringify(elem) : elem);
+	  }
+	}
+
+	removeMarkers();
+	var markersSet = new MarkerSet();
+	markersSet.add([data['GPSlatitude'], data['GPSlongitude']]);
+	for (var i = 1; i <= 10; i++){
+		var key = 'GPSlatitude_m'+i;
+		var keyl = 'GPSlongitude_m'+i;
+		if (key in data) {
+			markersSet.add([data[key], data[keyl]]);
+		}
+	}
+	var cnt = 0;
+	markersSet.forEach((m, i) => {
+		addMarker(JSON.parse(m)[0],
+			JSON.parse(m)[1],
+			'T'+cnt);
+		cnt += 1;
+	});
+
+};
+	
+
+
+function initMap() {
+	const boat_location = { lat: {{GPSlatitude}}, lng: {{GPSlongitude}}};
+  window.map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 14,
+    center: boat_location,
+  });
+	addMarker({{GPSlatitude}}, {{GPSlongitude}}, "T0");
+}
+
 
   (function(){
 	var commands = document.getElementsByClassName('boatcommand');
@@ -145,24 +203,10 @@
 		if(data['updated'] === true){
 			update_latest_ping(data['unix_ts'], data['time']);
 			update_data(data);
+			setMarkers(data);
 		} else {
 		  console.log("no new data in the last "+((Date.now() / 1000) - last_boat_ping_time) +" seconds.");
 		}
 	});
    }, 5000);
-</script>
-<script>
-	// Initialize and add the map
-function initMap() {
-	const boat_location = { lat: {{GPSlatitude}}, lng: {{GPSlongitude}}};
-  const map = new google.maps.Map(document.getElementById("map"), {
-    zoom: 14,
-    center: boat_location,
-  });
-  const marker = new google.maps.Marker({
-    position: boat_location,
-    map: map,
-	title: "T"
-  });
-}
 </script>

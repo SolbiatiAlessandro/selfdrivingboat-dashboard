@@ -20,6 +20,9 @@ def influxdb_latest_data():
     print(request.args)
     last_ts = request.args.get('last_ts', '', str)
 
+    
+    last_ts = '1618789101'
+
     if last_ts == '':
         yesterday = datetime.date.today() - datetime.timedelta(1)
         yesterday_unixtime= yesterday.strftime("%s")

@@ -31,6 +31,17 @@ def parse_tables_last_values(tables):
             key += r['_field']
             res[key.replace('.', '_')] = r['_value']
             res['time'] = r['_time'].strftime("%s")
+            if r['_measurement'] == 'GPS':
+                for i in range(2, 10):
+                    try:
+                        r = table.records[i*-1]
+                        key = r['_measurement']
+                        key += r['_field']
+                        key += '_m' + str(i)
+                        res[key.replace('.', '_')] = r['_value']
+                    except Exception as e:
+                        print("ERROR IN READING INFLUXDB GPS PREVIOUS DATA!", flush=True)
+                        print(e, flush=True)
             print(key,flush=True)
         except KeyError as e:
             print("ERROR IN READING INFLUXDB TABLE!", flush=True)
