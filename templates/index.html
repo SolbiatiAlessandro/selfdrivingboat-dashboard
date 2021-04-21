@@ -58,14 +58,23 @@
 	<div id="map"></div>
   </div>
   <div class="boatbox">
-	<h1>CONTROL</h1>
 	<p>last command event at <span id="command_ts"></span></p>
 	<div class="boatstatus" id="command_display"></div>
+  <div class="boatbox-section" style="height:250px">
+	<h1>SELF DRIVING</h1>
+	<div class="boatstatus"><input type="text" id="input-longitude" placeholder="longitude"></div>
+	<div class="boatstatus"><input type="text" id="input-latitude" placeholder="latitude"></div>
+	<div class="boatstatus"><button class="boatcommand">DRIVE TO COORDINATES</button></div>
+	<div class="boatstatus"><button class="boatcommand">STOP</button></div>
+  </div>
+  <div class="boatbox-section">
+	<h1>MANUAL CONTROL</h1>
 	<div class="boatstatus"><button class="boatcommand">FORWARD</button></div>
 	<div class="boatstatus"><button class="boatcommand">LEFT</button></div>
 	<div class="boatstatus"><button class="boatcommand">RIGHT</button></div>
 	<div class="boatstatus"><button class="boatcommand">BACK</button></div>
 	<div class="boatstatus"><button class="boatcommand">TEST-MOTORS</button></div>
+  </div>
   </div>
 </div>
 <script

@@ -15,13 +15,15 @@ import aws
 states = ["", "FORWARD", "LEFT", "RIGHT", "STOP"]
 STATE = 0
 
+@app.route('/unread_db_commands')
+def unread_db_commands():
+    db.get_unread_commands()
+
+
 @app.route('/influx_db_latest_data')
 def influxdb_latest_data():
     print(request.args)
     last_ts = request.args.get('last_ts', '', str)
-
-    
-    last_ts = '1618789101'
 
     if last_ts == '':
         yesterday = datetime.date.today() - datetime.timedelta(1)

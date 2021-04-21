@@ -30,6 +30,17 @@ def add_new_command(command):
     cur.close()
     conn.close()
 
+def get_unread_commands():
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM boat_commands WHERE has_been_read = FALSE ORDER BY command_id DESC ", (boat_name,));
+    commands = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
+    return commands
+
+
 def read_last_command(boat_name):
     "return None if last command was already read"
     conn = psycopg2.connect(DATABASE_URL, sslmode='require')
