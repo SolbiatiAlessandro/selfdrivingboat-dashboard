@@ -161,7 +161,7 @@ function initMap() {
 	gps_command.onclick = function(e){
 		var lon = $("#input-longitude").val()
 		var lat = $("#input-latitude").val()
-		var command = "GPS-"+lat+"-"+lon;
+		var command = "GPS,"+lat+","+lon;
 		$.ajax({
 		  url: '/set_command', 
 		  data: {'command': command}, 
