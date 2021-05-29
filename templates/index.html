@@ -1,18 +1,67 @@
 <style type="text/css">
+body{
+  background-color: #1F2035;
+  font-family: 'Poppins', sans-serif;
+  color: #fff;
+}
 .boatbox{
-  border: 3px solid;
-  margin:1%;
+  border: 1px solid #2F304E;
+  margin:10px;
   width:15%;
-  background:white;
+  background:#2F304E;
   height:1000px;
   text-align:center;
+  border-radius: 2px;
+}
+h2{
+  position: relative;
+  top:4px;
+}
+
+h1{
+  color:white;;
+  font-size: 17px;
+}
+p{
+  background-color:#5562f6;
+  width: 100%;
+  font-size: 11px;
+  padding-top:4px;
+  padding-bottom:4px;
+  font-weight: 600;
+
 }
 .boatstatus{
-  border: 2px solid;
-  margin: 5px;
+  border-radius: 10px;
+  color:#ffffff;
+  font-size:10px;
+  font-weight:300;
+  background-Color:#56558a;
+  margin: 10px;
 }
-.boatcommand{
+
+input{
   width:100%;
+}
+#GPS{
+  font-size:10px;
+  padding:7px;
+  background-color:#6930C3;
+}
+#stop{
+  background-color:#EF233C;
+}
+
+button {
+    transition-duration: 0.2s;
+    color:#fff;
+    border-radius: 10px;
+    border:none;
+    width: 100%;
+    background-color:#56cb8a;
+}
+button:hover {
+    background-color: #41caf4;
 }
 	  /* Set the size of the div element that contains the map */
 #map {
@@ -26,7 +75,7 @@
   src="https://code.jquery.com/jquery-3.6.0.min.js"
   integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
   crossorigin="anonymous"></script>
-<div style="width:98%;height:80px;" class="boatbox"><h1>WHEREISTHEBOAT.COM</h1></div>
+<div style="width:98%;height:80px;" class="boatbox"><h2>WHEREISTHEBOAT.COM</h2></div>
 <div style="display:flex">
   <div class="boatbox">
 	<h1>STATUS</h1>
@@ -128,7 +177,7 @@ var setMarkers = function(data){
 	});
 
 };
-	
+
 
 
 function initMap() {
@@ -147,8 +196,8 @@ function initMap() {
 	  commands[i].onclick = function(e){
 		var command = e.target.innerHTML;
 		$.ajax({
-		  url: '/set_command', 
-		  data: {'command': command}, 
+		  url: '/set_command',
+		  data: {'command': command},
 		  success: function(data){
 			$("#command_display").text(command);
 			$("#command_display").css({"backgroundColor": "yellow"});
@@ -163,8 +212,8 @@ function initMap() {
 		var lat = $("#input-latitude").val()
 		var command = "GPS,"+lat+","+lon;
 		$.ajax({
-		  url: '/set_command', 
-		  data: {'command': command}, 
+		  url: '/set_command',
+		  data: {'command': command},
 		  success: function(data){
 			$("#command_display").text(command);
 			$("#command_display").css({"backgroundColor": "yellow"});
@@ -234,3 +283,4 @@ function initMap() {
 	});
    }, 5000);
 </script>
+
